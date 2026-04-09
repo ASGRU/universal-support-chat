@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Universal Support Chat (Telegram Tickets)
  * Description: Frontend support chat with client accounts, ticket system, and direct Telegram notifications.
- * Version: 2.0.0
+ * Version: 0.1
  * Author: Universal
  * Text Domain: universal-support-chat
  * Domain Path: /languages
@@ -13,12 +13,13 @@ if (!defined('ABSPATH')) {
 }
 
 class Support_Chat_Telegram_Plugin {
-    const VERSION = '2.0.0';
+    const VERSION = '0.1';
     const DB_VERSION = '2.0.0';
     const TEXT_DOMAIN = 'universal-support-chat';
     const OPTION_DB_VERSION = 'support_chat_db_version';
     const OPTION_TELEGRAM_BOT_TOKEN = 'support_chat_telegram_bot_token';
     const OPTION_TELEGRAM_CHAT_ID = 'support_chat_telegram_chat_id';
+    const OPTION_TELEGRAM_WEBHOOK_SECRET = 'support_chat_telegram_webhook_secret';
     const OPTION_ALLOW_REGISTRATION = 'support_chat_allow_registration';
 
     const TABLE_TICKETS = 'support_chat_tickets';
@@ -36,6 +37,7 @@ class Support_Chat_Telegram_Plugin {
     public function activate() {
         $this->create_tables();
         add_option(self::OPTION_ALLOW_REGISTRATION, 'yes');
+        add_option(self::OPTION_TELEGRAM_WEBHOOK_SECRET, wp_generate_password(40, false, false));
     }
 
     public function init() {
@@ -369,6 +371,7 @@ class Support_Chat_Telegram_Plugin {
     private function render_settings_box() {
         $token = (string) get_option(self::OPTION_TELEGRAM_BOT_TOKEN, '');
         $chat_id = (string) get_option(self::OPTION_TELEGRAM_CHAT_ID, '');
+        $webhook_secret = $this->get_or_create_webhook_secret();
         $allow_registration = (string) get_option(self::OPTION_ALLOW_REGISTRATION, 'yes');
 
         echo '<hr />';
@@ -389,6 +392,12 @@ class Support_Chat_Telegram_Plugin {
         echo '</tr>';
 
         echo '<tr>';
+        echo '<th scope="row"><label for="support_chat_webhook_secret">Webhook Secret</label></th>';
+        echo '<td><input type="text" class="regular-text" id="support_chat_webhook_secret" name="webhook_secret" value="' . esc_attr($webhook_secret) . '" />';
+        echo '<p class="description">Передайте это значение в Telegram при setWebhook как secret_token.</p></td>';
+        echo '</tr>';
+
+        echo '<tr>';
         echo '<th scope="row">Регистрация клиентов</th>';
         echo '<td><label><input type="checkbox" name="allow_registration" value="yes" ' . checked($allow_registration, 'yes', false) . ' /> Разрешить регистрацию в виджете поддержки</label></td>';
         echo '</tr>';
@@ -397,6 +406,7 @@ class Support_Chat_Telegram_Plugin {
         submit_button('Сохранить настройки');
         $webhook_url = rest_url('support-chat/v1/telegram-webhook');
         echo '<p><strong>Webhook URL:</strong> <code>' . esc_html($webhook_url) . '</code></p>';
+        echo '<p><strong>Secret Token:</strong> <code>' . esc_html($webhook_secret) . '</code></p>';
         echo '<p>Команда ответа в Telegram: <code>#123 Текст ответа</code><br />Команда приглашения на регистрацию: <code>/invite 123</code></p>';
         echo '</form>';
     }
@@ -617,13 +627,29 @@ class Support_Chat_Telegram_Plugin {
 
         $token = isset($_POST['bot_token']) ? sanitize_text_field(wp_unslash($_POST['bot_token'])) : '';
         $chat_id = isset($_POST['chat_id']) ? sanitize_text_field(wp_unslash($_POST['chat_id'])) : '';
+        $webhook_secret = isset($_POST['webhook_secret']) ? sanitize_text_field(wp_unslash($_POST['webhook_secret'])) : '';
         $allow_registration = isset($_POST['allow_registration']) && wp_unslash($_POST['allow_registration']) === 'yes' ? 'yes' : 'no';
+
+        if ($webhook_secret === '' || !preg_match('/^[A-Za-z0-9_-]{8,128}$/', $webhook_secret)) {
+            $webhook_secret = $this->get_or_create_webhook_secret();
+        }
 
         update_option(self::OPTION_TELEGRAM_BOT_TOKEN, $token);
         update_option(self::OPTION_TELEGRAM_CHAT_ID, $chat_id);
+        update_option(self::OPTION_TELEGRAM_WEBHOOK_SECRET, $webhook_secret);
         update_option(self::OPTION_ALLOW_REGISTRATION, $allow_registration);
 
         $this->redirect_with_notice(admin_url('admin.php?page=support-chat-telegram'), 'settings_saved');
+    }
+
+    private function get_or_create_webhook_secret() {
+        $secret = (string) get_option(self::OPTION_TELEGRAM_WEBHOOK_SECRET, '');
+        if ($secret !== '' && preg_match('/^[A-Za-z0-9_-]{8,128}$/', $secret)) {
+            return $secret;
+        }
+        $secret = wp_generate_password(40, false, false);
+        update_option(self::OPTION_TELEGRAM_WEBHOOK_SECRET, $secret);
+        return $secret;
     }
 
     public function handle_create_ticket() {
@@ -1369,6 +1395,9 @@ class Support_Chat_Telegram_Plugin {
     public function ajax_widget_send() {
         $this->ensure_runtime_schema();
         check_ajax_referer('support_chat_widget', 'nonce');
+        if (!$this->check_rate_limit('widget_send', 20, 60)) {
+            wp_send_json_error(['error' => 'rate_limited'], 429);
+        }
 
         $message = isset($_POST['message']) ? wp_strip_all_tags(wp_unslash($_POST['message'])) : '';
         $message = trim($message);
@@ -1414,9 +1443,7 @@ class Support_Chat_Telegram_Plugin {
         }
 
         if ($ticket_id <= 0) {
-            global $wpdb;
-            $details = $wpdb->last_error ? $wpdb->last_error : '';
-            wp_send_json_error(['error' => 'send_failed', 'details' => $details], 500);
+            wp_send_json_error(['error' => 'send_failed'], 500);
         }
 
         if ($this->is_within_working_hours_utc2()) {
@@ -1472,6 +1499,9 @@ class Support_Chat_Telegram_Plugin {
     public function ajax_widget_login() {
         $this->ensure_runtime_schema();
         check_ajax_referer('support_chat_widget', 'nonce');
+        if (!$this->check_rate_limit('widget_login', 10, 300)) {
+            wp_send_json_error(['error' => 'rate_limited'], 429);
+        }
 
         $login = isset($_POST['login']) ? sanitize_text_field(wp_unslash($_POST['login'])) : '';
         $password = isset($_POST['password']) ? (string) wp_unslash($_POST['password']) : '';
@@ -1507,6 +1537,9 @@ class Support_Chat_Telegram_Plugin {
     public function ajax_widget_register() {
         $this->ensure_runtime_schema();
         check_ajax_referer('support_chat_widget', 'nonce');
+        if (!$this->check_rate_limit('widget_register', 5, 600)) {
+            wp_send_json_error(['error' => 'rate_limited'], 429);
+        }
 
         $allow_registration = (string) get_option(self::OPTION_ALLOW_REGISTRATION, 'yes');
         if ($allow_registration !== 'yes') {
@@ -1632,16 +1665,80 @@ class Support_Chat_Telegram_Plugin {
     public function rest_cors_headers($served, $result, $request, $server) {
         $route = method_exists($request, 'get_route') ? (string) $request->get_route() : '';
         if (strpos($route, '/support-chat/v1/external/') === 0) {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: POST, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type');
-            header('Vary: Origin');
+            $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw((string) wp_unslash($_SERVER['HTTP_ORIGIN'])) : '';
+            if ($this->is_origin_whitelisted($origin)) {
+                header('Access-Control-Allow-Origin: ' . $origin);
+                header('Access-Control-Allow-Methods: POST, OPTIONS');
+                header('Access-Control-Allow-Headers: Content-Type');
+                header('Vary: Origin');
+            }
             if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+                if (!$this->is_origin_whitelisted($origin)) {
+                    status_header(403);
+                }
                 echo '';
                 return true;
             }
         }
         return $served;
+    }
+
+    private function is_origin_whitelisted($origin) {
+        if ($origin === '') {
+            return false;
+        }
+        $origin_host = wp_parse_url($origin, PHP_URL_HOST);
+        if (!$origin_host) {
+            return false;
+        }
+
+        global $wpdb;
+        $table = $this->get_sites_table();
+        $sites = $wpdb->get_col("SELECT site_url FROM {$table} WHERE status = 'active'");
+        if (empty($sites) || !is_array($sites)) {
+            return false;
+        }
+
+        foreach ($sites as $site_url) {
+            $site_host = wp_parse_url((string) $site_url, PHP_URL_HOST);
+            if ($site_host && strtolower((string) $site_host) === strtolower((string) $origin_host)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function get_request_ip() {
+        $candidates = [
+            isset($_SERVER['HTTP_CF_CONNECTING_IP']) ? (string) wp_unslash($_SERVER['HTTP_CF_CONNECTING_IP']) : '',
+            isset($_SERVER['HTTP_X_FORWARDED_FOR']) ? (string) wp_unslash($_SERVER['HTTP_X_FORWARDED_FOR']) : '',
+            isset($_SERVER['REMOTE_ADDR']) ? (string) wp_unslash($_SERVER['REMOTE_ADDR']) : '',
+        ];
+        foreach ($candidates as $candidate) {
+            if ($candidate === '') {
+                continue;
+            }
+            $first = trim(explode(',', $candidate)[0]);
+            if ($first !== '') {
+                return preg_replace('/[^0-9a-fA-F\:\.]/', '', $first);
+            }
+        }
+        return 'unknown';
+    }
+
+    private function check_rate_limit($scope, $limit, $window_seconds) {
+        $scope = sanitize_key((string) $scope);
+        $limit = max(1, (int) $limit);
+        $window_seconds = max(10, (int) $window_seconds);
+        $bucket = (int) floor(time() / $window_seconds);
+        $key = 'support_chat_rl_' . md5($scope . '|' . $this->get_request_ip() . '|' . $bucket);
+        $count = (int) get_transient($key);
+        if ($count >= $limit) {
+            return false;
+        }
+        set_transient($key, $count + 1, $window_seconds + 5);
+        return true;
     }
 
     private function get_site_by_api_key($api_key) {
@@ -1779,6 +1876,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function rest_external_state($request) {
         $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('external_state', 90, 60)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'rate_limited'], 429);
+        }
         $api_key = sanitize_text_field((string) $request->get_param('site_key'));
         $visitor_id = sanitize_text_field((string) $request->get_param('visitor_id'));
         $auth_token = sanitize_text_field((string) $request->get_param('auth_token'));
@@ -1824,6 +1924,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function rest_external_send($request) {
         $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('external_send', 30, 60)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'rate_limited'], 429);
+        }
         $api_key = sanitize_text_field((string) $request->get_param('site_key'));
         $visitor_id = sanitize_text_field((string) $request->get_param('visitor_id'));
         $auth_token = sanitize_text_field((string) $request->get_param('auth_token'));
@@ -1923,6 +2026,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function rest_external_register($request) {
         $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('external_register', 5, 600)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'rate_limited'], 429);
+        }
         $api_key = sanitize_text_field((string) $request->get_param('site_key'));
         $name = sanitize_text_field((string) $request->get_param('name'));
         $email = sanitize_email((string) $request->get_param('email'));
@@ -1975,6 +2081,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function rest_external_login($request) {
         $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('external_login', 10, 300)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'rate_limited'], 429);
+        }
         $api_key = sanitize_text_field((string) $request->get_param('site_key'));
         $email = sanitize_email((string) $request->get_param('email'));
         $password = (string) $request->get_param('password');
@@ -2003,6 +2112,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function rest_external_tickets($request) {
         $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('external_tickets', 30, 60)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'rate_limited'], 429);
+        }
         $api_key = sanitize_text_field((string) $request->get_param('site_key'));
         $auth_token = sanitize_text_field((string) $request->get_param('auth_token'));
         $origin = (string) $request->get_header('origin');
@@ -2026,6 +2138,14 @@ class Support_Chat_Telegram_Plugin {
 
     public function rest_telegram_webhook($request) {
         $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('telegram_webhook', 120, 60)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'rate_limited'], 429);
+        }
+        $expected_secret = $this->get_or_create_webhook_secret();
+        $incoming_secret = (string) $request->get_header('x-telegram-bot-api-secret-token');
+        if ($expected_secret === '' || !hash_equals($expected_secret, $incoming_secret)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'forbidden'], 403);
+        }
         $payload = $request->get_json_params();
         if (!is_array($payload)) {
             return rest_ensure_response(['ok' => true]);
