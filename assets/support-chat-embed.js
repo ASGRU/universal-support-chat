@@ -198,8 +198,16 @@
 
   function renderMessages(items){
     var html = '';
+    var authCommand = '';
     (items || []).forEach(function(m){
       var mine = m.sender_type !== 'admin';
+      if(!mine){
+        var cmd = String(m.message || '').trim().toLowerCase();
+        if(cmd === '/auth' || cmd === '/login' || cmd === '/register'){
+          authCommand = cmd;
+          return;
+        }
+      }
       var t = m.created_at && m.created_at.length >= 16 ? m.created_at.substring(11,16) : (m.created_at || '');
       html += '<div class="scx-msg'+(mine?' mine':'')+'">';
       if(!mine){ html += '<div class="scx-msg-head"><span class="scx-msg-avatar">◌</span><span>'+L.support+'</span></div>'; }
@@ -208,6 +216,10 @@
     msgs.innerHTML = html || '<div style="color:#666">'+L.noMessages+'</div>';
     msgs.scrollTop = msgs.scrollHeight;
     lastSig = JSON.stringify(items || []);
+    if(authCommand){
+      setAuthMode(authCommand === '/register' ? 'register' : 'login');
+      setView('scxViewAuth');
+    }
   }
 
   function renderTickets(items){
@@ -246,25 +258,20 @@
     var guestName = profile && profile.name ? profile.name : '';
     var guestEmail = profile && profile.email ? profile.email : '';
     if(!message){ alert(L.enterMessage); return; }
-    if(!authToken && (!guestName || !guestEmail)){
-      var n = window.prompt(L.yourName, '');
-      var e = window.prompt(L.yourEmail, '');
-      if(!n || !e){ alert(L.fillNameEmail); return; }
-      saveProfile({name:n.trim(), email:e.trim()});
-      guestName = n.trim(); guestEmail = e.trim();
-      renderProfile(null);
-    }
 
     sendEl.disabled = true;
     sendEl.classList.remove('active');
-    req('/external/send', {
+    var payload = {
       ticket_id: activeTicketId,
       force_new_ticket: forceNewTicket ? 1 : 0,
-      guest_name: guestName,
-      guest_email: guestEmail,
       message: message,
       page_url: location.href
-    }).then(function(res){
+    };
+    if(!authToken && guestName && guestEmail){
+      payload.guest_name = guestName;
+      payload.guest_email = guestEmail;
+    }
+    req('/external/send', payload).then(function(res){
       if(res && res.ok){
         inputEl.value = '';
         activeTicketId = res.ticket_id || activeTicketId;

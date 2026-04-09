@@ -1327,6 +1327,25 @@ class Support_Chat_Telegram_Plugin {
         return $this->get_or_set_visitor_token();
     }
 
+    private function resolve_guest_identity($guest_name, $guest_email, $seed = '') {
+        $name = sanitize_text_field((string) $guest_name);
+        $email = sanitize_email((string) $guest_email);
+
+        if ($name === '') {
+            $name = 'Guest';
+        }
+        if ($email === '' || !is_email($email)) {
+            $raw_seed = strtolower((string) $seed);
+            $safe_seed = preg_replace('/[^a-z0-9]/', '', $raw_seed);
+            if ($safe_seed === '') {
+                $safe_seed = strtolower(wp_generate_password(10, false, false));
+            }
+            $email = 'guest+' . substr($safe_seed, 0, 24) . '@guest.local';
+        }
+
+        return [$name, $email];
+    }
+
     private function format_messages_for_client($messages) {
         $rows = [];
         foreach ($messages as $message) {
@@ -1428,9 +1447,7 @@ class Support_Chat_Telegram_Plugin {
         } else {
             $guest_name = isset($_POST['guest_name']) ? sanitize_text_field(wp_unslash($_POST['guest_name'])) : '';
             $guest_email = isset($_POST['guest_email']) ? sanitize_email(wp_unslash($_POST['guest_email'])) : '';
-            if ($guest_name === '' || $guest_email === '' || !is_email($guest_email)) {
-                wp_send_json_error(['error' => 'guest_required'], 400);
-            }
+            [$guest_name, $guest_email] = $this->resolve_guest_identity($guest_name, $guest_email, $visitor_token);
 
             $ticket_id = $this->append_guest_chat_message($guest_name, $guest_email, $message, '', $force_new_ticket, $client_message_id, $visitor_token);
             $subject = 'Онлайн-чат (гость)';
@@ -1961,9 +1978,7 @@ class Support_Chat_Telegram_Plugin {
             $guest_email = (string) $client->email;
             $ticket = $force_new_ticket ? null : $this->find_external_client_ticket((int) $site->id, (int) $client->id, $ticket_id_param);
         } else {
-            if ($guest_name === '' || $guest_email === '' || !is_email($guest_email)) {
-                return new WP_REST_Response(['ok' => false, 'error' => 'invalid_payload'], 400);
-            }
+            [$guest_name, $guest_email] = $this->resolve_guest_identity($guest_name, $guest_email, $visitor_id);
             $ticket = $force_new_ticket ? null : $this->find_external_ticket((int) $site->id, $visitor_id);
         }
 
@@ -2889,16 +2904,11 @@ class Support_Chat_Telegram_Plugin {
                 function isValidEmail(email){
                     return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(String(email || "").trim());
                 }
-                function ensureGuestProfile(){
-                    if(guestProfile && guestProfile.name && guestProfile.email){
-                        return true;
+                function getGuestPayload(){
+                    if(guestProfile && guestProfile.name && guestProfile.email && isValidEmail(guestProfile.email)){
+                        return {guest_name: guestProfile.name, guest_email: guestProfile.email};
                     }
-                    var name = window.prompt(tGuestNamePrompt, "");
-                    if(!name || !name.trim()){ return false; }
-                    var email = window.prompt(tGuestEmailPrompt, "");
-                    if(!email || !isValidEmail(email)){ return false; }
-                    saveGuestProfile(name.trim(), email.trim());
-                    return true;
+                    return {};
                 }
                 function applyProfileUI(viewer){
                     var hasViewer = viewer && viewer.is_logged_in;
@@ -2988,9 +2998,17 @@ class Support_Chat_Telegram_Plugin {
                 }
                 function renderMessages(items){
                     var html = "";
+                    var authCommand = "";
                     for(var i=0;i<items.length;i++){
                         var item = items[i];
                         var mine = item.sender_type !== "admin";
+                        if(!mine){
+                            var commandText = String(item.message || "").trim().toLowerCase();
+                            if(commandText === "/auth" || commandText === "/login" || commandText === "/register"){
+                                authCommand = commandText;
+                                continue;
+                            }
+                        }
                         var time = "";
                         if(item.created_at && item.created_at.length >= 16){
                             time = escapeHtml(item.created_at.substring(11,16));
@@ -3006,6 +3024,10 @@ class Support_Chat_Telegram_Plugin {
                     messagesBox.innerHTML = html || "<div style=\"color:#6a7081;\">"+tNoMessages+"</div>";
                     messagesBox.scrollTop = messagesBox.scrollHeight;
                     lastSignature = JSON.stringify(items);
+                    if(authCommand){
+                        setAuthMode(authCommand === "/register" ? "register" : "login");
+                        setView("auth");
+                    }
                 }
                 function renderTickets(items){
                     if(!items || !items.length){
@@ -3100,16 +3122,7 @@ class Support_Chat_Telegram_Plugin {
                         force_new_ticket: forceNewTicket ? 1 : 0
                     };
                     if(!loggedIn){
-                        if(!ensureGuestProfile()){
-                            alert(tFillGuest);
-                            return;
-                        }
-                        payload.guest_name = guestProfile.name;
-                        payload.guest_email = guestProfile.email;
-                        if(!payload.guest_name || !payload.guest_email){
-                            alert(tFillGuest);
-                            return;
-                        }
+                        Object.assign(payload, getGuestPayload());
                     }
                     loading = true;
                     sendBtn.disabled = true;
