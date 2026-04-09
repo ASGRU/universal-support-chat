@@ -1,0 +1,230 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Universal Support Chat 1.1.0\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You do not have permission to access this page."
+msgstr "You do not have permission to access this page."
+
+msgid "Настройки сохранены."
+msgstr "Settings saved."
+
+msgid "Ответ отправлен."
+msgstr "Reply sent."
+
+msgid "Статус обновлён."
+msgstr "Status updated."
+
+msgid "Тикет создан."
+msgstr "Ticket created."
+
+msgid "Сообщение отправлено."
+msgstr "Message sent."
+
+msgid "Сообщение отправлено в поддержку."
+msgstr "Message sent to support."
+
+msgid "Аккаунт создан. Вы вошли в систему."
+msgstr "Account created. You are now logged in."
+
+msgid "Вы успешно вошли."
+msgstr "You have logged in successfully."
+
+msgid "Неверный логин или пароль."
+msgstr "Invalid login or password."
+
+msgid "Произошла ошибка. Проверьте данные и повторите попытку."
+msgstr "An error occurred. Please check your data and try again."
+
+msgid "Access denied."
+msgstr "Access denied."
+
+msgid "Поддержка"
+msgstr "Support"
+
+msgid "Действие выполнено."
+msgstr "Action completed."
+
+msgid "Проверьте данные и повторите попытку."
+msgstr "Check your input and try again."
+
+msgid "Аккаунт создан, вы авторизованы."
+msgstr "Account created, you are logged in."
+
+msgid "Сообщение отправлено. Скоро вам ответят."
+msgstr "Message sent. We will reply shortly."
+
+msgid "Чтобы написать в поддержку, войдите в аккаунт или зарегистрируйтесь."
+msgstr "To contact support, log in or create an account."
+
+msgid "Вход"
+msgstr "Sign in"
+
+msgid "Логин или Email"
+msgstr "Login or Email"
+
+msgid "Пароль"
+msgstr "Password"
+
+msgid "Запомнить меня"
+msgstr "Remember me"
+
+msgid "Войти"
+msgstr "Sign in"
+
+msgid "Регистрация"
+msgstr "Register"
+
+msgid "Логин"
+msgstr "Login"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Создать аккаунт"
+msgstr "Create account"
+
+msgid "Мои тикеты"
+msgstr "My tickets"
+
+msgid "У вас пока нет обращений."
+msgstr "You have no requests yet."
+
+msgid "Статус:"
+msgstr "Status:"
+
+msgid "Сообщений нет."
+msgstr "No messages."
+
+msgid "Вы"
+msgstr "You"
+
+msgid "Ответить"
+msgstr "Reply"
+
+msgid "Отправить"
+msgstr "Send"
+
+msgid "Тикет закрыт. Если вопрос остался, создайте новый тикет."
+msgstr "This ticket is closed. If you still need help, create a new ticket."
+
+msgid "Создать новый тикет"
+msgstr "Create a new ticket"
+
+msgid "Тема"
+msgstr "Subject"
+
+msgid "Сообщение"
+msgstr "Message"
+
+msgid "Создать тикет"
+msgstr "Create ticket"
+
+msgid "Нужна срочная помощь с сайтом?"
+msgstr "Need urgent help with your website?"
+
+msgid "Опишите нам проблему, и мы ответим как можно быстрее."
+msgstr "Describe your issue and we will respond as quickly as possible."
+
+msgid "Чат поддержки"
+msgstr "Support chat"
+
+msgid "Онлайн-чат поддержки"
+msgstr "Live support chat"
+
+msgid "Закрыть"
+msgstr "Close"
+
+msgid "Напишите сообщение."
+msgstr "Type your message."
+
+msgid "Ваше имя"
+msgstr "Your name"
+
+msgid "Ваш email"
+msgstr "Your email"
+
+msgid "Опишите проблему..."
+msgstr "Describe your issue..."
+
+msgid "Сообщений пока нет."
+msgstr "No messages yet."
+
+msgid "Заполните имя и email."
+msgstr "Please enter your name and email."
+
+msgid "Ошибка"
+msgstr "Error"
+
+msgid "Не удалось отправить сообщение."
+msgstr "Failed to send message."
+
+msgid "Ошибка соединения."
+msgstr "Connection error."
+
+msgid "Создать чат"
+msgstr "Create chat"
+
+msgid "Мои чаты"
+msgstr "My chats"
+
+msgid "Назад к чату"
+msgstr "Back to chat"
+
+msgid "Войдите, чтобы управлять чатами"
+msgstr "Sign in to manage chats"
+
+msgid "Чатов пока нет."
+msgstr "No chats yet."
+
+msgid "Для управления чатами аккаунта выполните вход."
+msgstr "Sign in to manage account chats."
+
+msgid "Профиль:"
+msgstr "Profile:"
+
+msgid "изменить"
+msgstr "edit"
+
+msgid "выйти"
+msgstr "log out"
+
+msgid "Введите сообщение..."
+msgstr "Type a message..."
+
+msgid "Для первого сообщения укажите имя и email."
+msgstr "For the first message, enter your name and email."
+
+msgid "Введите ваше имя"
+msgstr "Enter your name"
+
+msgid "Введите ваш email"
+msgstr "Enter your email"
+
+msgid "Нет аккаунта?"
+msgstr "No account?"
+
+msgid "Уже есть аккаунт?"
+msgstr "Already have an account?"
+
+msgid "Чат закрыт. Если вопрос остался, создайте новый чат."
+msgstr "This chat is closed. If you still need help, create a new chat."
+
+msgid "Создать новый чат"
+msgstr "Create a new chat"
+
+msgid "Зарегистрироваться"
+msgstr "Sign up"
+
+msgid "ваш@email.com"
+msgstr "your@email.com"
+
+msgid "логин"
+msgstr "login"
+
+msgid "Извините, все операторы сейчас заняты. Мы пришлём ответ на вашу почту, как только специалист освободится."
+msgstr "Sorry, all operators are currently busy. We will send a reply to your email as soon as a specialist is available."

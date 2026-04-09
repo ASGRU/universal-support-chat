@@ -1,0 +1,230 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Universal Support Chat 1.1.0\n"
+"Language: et\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "You do not have permission to access this page."
+msgstr "Sul pole õigusi sellele lehele ligi pääseda."
+
+msgid "Настройки сохранены."
+msgstr "Seaded on salvestatud."
+
+msgid "Ответ отправлен."
+msgstr "Vastus on saadetud."
+
+msgid "Статус обновлён."
+msgstr "Staatus on uuendatud."
+
+msgid "Тикет создан."
+msgstr "Pöördumine on loodud."
+
+msgid "Сообщение отправлено."
+msgstr "Sõnum on saadetud."
+
+msgid "Сообщение отправлено в поддержку."
+msgstr "Sõnum saadeti toele."
+
+msgid "Аккаунт создан. Вы вошли в систему."
+msgstr "Konto on loodud. Oled sisse logitud."
+
+msgid "Вы успешно вошли."
+msgstr "Sisselogimine õnnestus."
+
+msgid "Неверный логин или пароль."
+msgstr "Vale kasutajanimi või parool."
+
+msgid "Произошла ошибка. Проверьте данные и повторите попытку."
+msgstr "Tekkis viga. Kontrolli andmeid ja proovi uuesti."
+
+msgid "Access denied."
+msgstr "Ligipääs keelatud."
+
+msgid "Поддержка"
+msgstr "Tugi"
+
+msgid "Действие выполнено."
+msgstr "Toiming on tehtud."
+
+msgid "Проверьте данные и повторите попытку."
+msgstr "Kontrolli andmeid ja proovi uuesti."
+
+msgid "Аккаунт создан, вы авторизованы."
+msgstr "Konto on loodud, oled sisse logitud."
+
+msgid "Сообщение отправлено. Скоро вам ответят."
+msgstr "Sõnum on saadetud. Vastame peagi."
+
+msgid "Чтобы написать в поддержку, войдите в аккаунт или зарегистрируйтесь."
+msgstr "Toe poole pöördumiseks logi sisse või registreeru."
+
+msgid "Вход"
+msgstr "Sisselogimine"
+
+msgid "Логин или Email"
+msgstr "Kasutajanimi või e-post"
+
+msgid "Пароль"
+msgstr "Parool"
+
+msgid "Запомнить меня"
+msgstr "Jäta mind meelde"
+
+msgid "Войти"
+msgstr "Logi sisse"
+
+msgid "Регистрация"
+msgstr "Registreerimine"
+
+msgid "Логин"
+msgstr "Kasutajanimi"
+
+msgid "Email"
+msgstr "E-post"
+
+msgid "Создать аккаунт"
+msgstr "Loo konto"
+
+msgid "Мои тикеты"
+msgstr "Minu pöördumised"
+
+msgid "У вас пока нет обращений."
+msgstr "Sul pole veel pöördumisi."
+
+msgid "Статус:"
+msgstr "Staatus:"
+
+msgid "Сообщений нет."
+msgstr "Sõnumeid pole."
+
+msgid "Вы"
+msgstr "Sina"
+
+msgid "Ответить"
+msgstr "Vasta"
+
+msgid "Отправить"
+msgstr "Saada"
+
+msgid "Тикет закрыт. Если вопрос остался, создайте новый тикет."
+msgstr "Pöördumine on suletud. Kui küsimus jäi, loo uus pöördumine."
+
+msgid "Создать новый тикет"
+msgstr "Loo uus pöördumine"
+
+msgid "Тема"
+msgstr "Teema"
+
+msgid "Сообщение"
+msgstr "Sõnum"
+
+msgid "Создать тикет"
+msgstr "Loo pöördumine"
+
+msgid "Нужна срочная помощь с сайтом?"
+msgstr "Kas vajad saidiga kiiret abi?"
+
+msgid "Опишите нам проблему, и мы ответим как можно быстрее."
+msgstr "Kirjelda probleemi ja vastame nii kiiresti kui võimalik."
+
+msgid "Чат поддержки"
+msgstr "Toe vestlus"
+
+msgid "Онлайн-чат поддержки"
+msgstr "Reaalajas toe vestlus"
+
+msgid "Закрыть"
+msgstr "Sulge"
+
+msgid "Напишите сообщение."
+msgstr "Kirjuta sõnum."
+
+msgid "Ваше имя"
+msgstr "Sinu nimi"
+
+msgid "Ваш email"
+msgstr "Sinu e-post"
+
+msgid "Опишите проблему..."
+msgstr "Kirjelda probleemi..."
+
+msgid "Сообщений пока нет."
+msgstr "Sõnumeid veel pole."
+
+msgid "Заполните имя и email."
+msgstr "Täida nimi ja e-post."
+
+msgid "Ошибка"
+msgstr "Viga"
+
+msgid "Не удалось отправить сообщение."
+msgstr "Sõnumi saatmine ebaõnnestus."
+
+msgid "Ошибка соединения."
+msgstr "Ühenduse viga."
+
+msgid "Создать чат"
+msgstr "Loo vestlus"
+
+msgid "Мои чаты"
+msgstr "Minu vestlused"
+
+msgid "Назад к чату"
+msgstr "Tagasi vestlusesse"
+
+msgid "Войдите, чтобы управлять чатами"
+msgstr "Logi sisse, et vestlusi hallata"
+
+msgid "Чатов пока нет."
+msgstr "Vestlusi veel pole."
+
+msgid "Для управления чатами аккаунта выполните вход."
+msgstr "Kontoga vestluste haldamiseks logi sisse."
+
+msgid "Профиль:"
+msgstr "Profiil:"
+
+msgid "изменить"
+msgstr "muuda"
+
+msgid "выйти"
+msgstr "logi välja"
+
+msgid "Введите сообщение..."
+msgstr "Sisesta sõnum..."
+
+msgid "Для первого сообщения укажите имя и email."
+msgstr "Esimese sõnumi jaoks sisesta nimi ja e-post."
+
+msgid "Введите ваше имя"
+msgstr "Sisesta oma nimi"
+
+msgid "Введите ваш email"
+msgstr "Sisesta oma e-post"
+
+msgid "Нет аккаунта?"
+msgstr "Pole kontot?"
+
+msgid "Уже есть аккаунт?"
+msgstr "Konto on juba olemas?"
+
+msgid "Чат закрыт. Если вопрос остался, создайте новый чат."
+msgstr "Vestlus on suletud. Kui küsimus jäi, loo uus vestlus."
+
+msgid "Создать новый чат"
+msgstr "Loo uus vestlus"
+
+msgid "Зарегистрироваться"
+msgstr "Registreeru"
+
+msgid "ваш@email.com"
+msgstr "teie@email.com"
+
+msgid "логин"
+msgstr "kasutajanimi"
+
+msgid "Извините, все операторы сейчас заняты. Мы пришлём ответ на вашу почту, как только специалист освободится."
+msgstr "Vabandame, kõik operaatorid on hetkel hõivatud. Saadame vastuse teie e-postile niipea, kui spetsialist vabaneb."

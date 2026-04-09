@@ -1,0 +1,248 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-09 16:03+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:145
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:173
+msgid "Настройки сохранены."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:174
+msgid "Ответ отправлен."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:175
+msgid "Статус обновлён."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:176
+msgid "Тикет создан."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:177
+msgid "Сообщение отправлено."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:178
+msgid "Сообщение отправлено в поддержку."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:179
+msgid "Аккаунт создан. Вы вошли в систему."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:180
+msgid "Вы успешно вошли."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:181
+msgid "Неверный логин или пароль."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:182
+msgid "Произошла ошибка. Проверьте данные и повторите попытку."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:360
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:452
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:486
+msgid "Access denied."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1162
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1284
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1401
+msgid "Поддержка"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1167
+msgid "Действие выполнено."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1167
+msgid "Проверьте данные и повторите попытку."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1169
+msgid "Аккаунт создан, вы авторизованы."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1171
+msgid "Сообщение отправлено. Скоро вам ответят."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1196
+msgid "Чтобы написать в поддержку, войдите в аккаунт или зарегистрируйтесь."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1200
+msgid "Вход"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1204
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1377
+msgid "Логин или Email"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1205
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1226
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1378
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1389
+msgid "Пароль"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1206
+msgid "Запомнить меня"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1207
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1373
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1379
+msgid "Войти"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1213
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1383
+msgid "Регистрация"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1220
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1387
+msgid "Логин"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1222
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1224
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1388
+msgid "Email"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1227
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1390
+msgid "Создать аккаунт"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1253
+msgid "Мои тикеты"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1256
+msgid "У вас пока нет обращений."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1262
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1277
+msgid "Статус:"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1280
+msgid "Сообщений нет."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1284
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1402
+msgid "Вы"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1293
+msgid "Ответить"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1299
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1369
+msgid "Отправить"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1302
+msgid "Тикет закрыт. Если вопрос остался, создайте новый тикет."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1307
+msgid "Создать новый тикет"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1311
+msgid "Тема"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1312
+msgid "Сообщение"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1313
+msgid "Создать тикет"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1357
+msgid "Нужна срочная помощь с сайтом?"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1357
+msgid "Опишите нам проблему, и мы ответим как можно быстрее."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1358
+msgid "Чат поддержки"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1360
+msgid "Онлайн-чат поддержки"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1360
+msgid "Закрыть"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1362
+msgid "Напишите сообщение."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1365
+msgid "Ваше имя"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1366
+msgid "Ваш email"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1368
+msgid "Опишите проблему..."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1403
+msgid "Сообщений пока нет."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1404
+msgid "Заполните имя и email."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1405
+msgid "Ошибка"
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1406
+msgid "Не удалось отправить сообщение."
+msgstr ""
+
+#: wp-content/plugins/universal-support-chat/universal-support-chat.php:1407
+msgid "Ошибка соединения."
+msgstr ""
