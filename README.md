@@ -57,19 +57,7 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
 
 ## Как отвечать из Telegram
 
-Плагин понимает форматы:
-
-- `#123 Текст ответа`
-- `/reply 123 Текст ответа`
-- Reply на сообщение бота (по `reply_to_message`)
-
-Команда приглашения на регистрацию:
-
-- `/invite 123`
-
-Проверка webhook-обработчика:
-
-- `/ping`
+Используйте только `reply` на сообщение бота (по `reply_to_message`).
 
 ## Внешние сайты (один backend -> много frontend)
 
@@ -139,7 +127,7 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
 - Убедитесь, что в админке добавлен правильный `URL сайта` (домен должен совпадать).
 
 3. Ответ из Telegram не попадает в нужный чат:
-- Отвечайте форматом `#ID текст` или reply на исходное сообщение бота.
+- Отвечайте через `reply` на исходное сообщение бота.
 
 4. Не приходят уведомления:
 - Проверьте `Bot Token`, `Chat ID`, и что бот добавлен в нужный чат.
@@ -153,7 +141,3 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
 - `support_chat_telegram_links`
 - `support_chat_sites`
 - `support_chat_clients`
-
-## Версия
-
-Текущая версия: `2.0.0`

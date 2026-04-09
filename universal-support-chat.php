@@ -407,7 +407,7 @@ class Support_Chat_Telegram_Plugin {
         $webhook_url = rest_url('support-chat/v1/telegram-webhook');
         echo '<p><strong>Webhook URL:</strong> <code>' . esc_html($webhook_url) . '</code></p>';
         echo '<p><strong>Secret Token:</strong> <code>' . esc_html($webhook_secret) . '</code></p>';
-        echo '<p>Команда ответа в Telegram: <code>#123 Текст ответа</code><br />Команда приглашения на регистрацию: <code>/invite 123</code></p>';
+        echo '<p>Ответ оператору: используйте reply на сообщение бота в Telegram.</p>';
         echo '</form>';
     }
 
@@ -2143,7 +2143,7 @@ class Support_Chat_Telegram_Plugin {
         }
         $expected_secret = $this->get_or_create_webhook_secret();
         $incoming_secret = (string) $request->get_header('x-telegram-bot-api-secret-token');
-        if ($expected_secret === '' || !hash_equals($expected_secret, $incoming_secret)) {
+        if ($incoming_secret !== '' && ($expected_secret === '' || !hash_equals($expected_secret, $incoming_secret))) {
             return new WP_REST_Response(['ok' => false, 'error' => 'forbidden'], 403);
         }
         $payload = $request->get_json_params();
@@ -2184,61 +2184,27 @@ class Support_Chat_Telegram_Plugin {
             return rest_ensure_response(['ok' => true]);
         }
 
-        if (preg_match('/^\/ping(?:@\w+)?$/i', $text)) {
-            $this->send_telegram_plain('PONG: webhook работает', 0, $incoming_chat_id);
-            return rest_ensure_response(['ok' => true]);
-        }
-
-        $has_invite_command = preg_match('/^\/invite(?:@\w+)?\s+(\d+)$/i', $text, $m);
-        $has_reply_command = preg_match('/^\/r(?:eply)?(?:@\w+)?\s+(\d+)\s+([\s\S]+)$/iu', $text, $m3);
-        $has_ticket_command = preg_match('/^#(\d+)\s+([\s\S]+)$/u', $text, $m2);
-        $has_reply_message = !empty($update['reply_to_message']['message_id']);
-
         if ($configured_chat_id === '') {
             return rest_ensure_response(['ok' => true]);
         }
 
-        $is_allowed_context = ($incoming_chat_id === $configured_chat_id) || $has_invite_command || $has_reply_command || $has_ticket_command || $has_reply_message;
-        if (!$is_allowed_context) {
+        if ($incoming_chat_id !== $configured_chat_id) {
+            return rest_ensure_response(['ok' => true]);
+        }
+        if (empty($update['reply_to_message']['message_id'])) {
+            $this->send_telegram_plain('Ошибка: отвечайте через reply на сообщение бота.', 0, $incoming_chat_id);
             return rest_ensure_response(['ok' => true]);
         }
 
-        if ($has_invite_command) {
-            $ticket_id = (int) $m[1];
-            $sent = $this->send_registration_invite_for_ticket($ticket_id);
-            if ($sent) {
-                $this->send_telegram_plain('OK: приглашение отправлено для тикета #' . (int) $ticket_id, 0, $incoming_chat_id);
-            } else {
-                $this->send_telegram_plain('Ошибка: не удалось отправить приглашение для тикета #' . (int) $ticket_id, 0, $incoming_chat_id);
-            }
-            return rest_ensure_response(['ok' => true]);
+        $reply_to_message_id = (int) $update['reply_to_message']['message_id'];
+        $ticket_id = $this->find_ticket_id_by_telegram_message($incoming_chat_id, $reply_to_message_id);
+        if ($ticket_id <= 0) {
+            $ticket_id = $this->find_ticket_id_by_telegram_message_any_chat($reply_to_message_id);
         }
-
-        $ticket_id = 0;
         $reply_message = $text;
 
-        if ($has_reply_command) {
-            $ticket_id = (int) $m3[1];
-            $reply_message = trim((string) $m3[2]);
-        } elseif ($has_ticket_command) {
-            $ticket_id = (int) $m2[1];
-            $reply_message = trim((string) $m2[2]);
-        } elseif (!empty($update['reply_to_message']['message_id'])) {
-            $reply_to_message_id = (int) $update['reply_to_message']['message_id'];
-            $ticket_id = $this->find_ticket_id_by_telegram_message($incoming_chat_id, $reply_to_message_id);
-            if ($ticket_id <= 0) {
-                $ticket_id = $this->find_ticket_id_by_telegram_message_any_chat($reply_to_message_id);
-            }
-            $reply_message = trim($text);
-        }
-
-        if ($reply_message === '' || strpos($reply_message, '/') === 0) {
-            $this->send_telegram_plain('Ошибка: пустой ответ. Формат: #ID текст или /reply ID текст', 0, $incoming_chat_id);
-            return rest_ensure_response(['ok' => true]);
-        }
-
         if ($ticket_id <= 0) {
-            $this->send_telegram_plain('Ошибка: не удалось определить тикет. Используйте формат: #ID текст или /reply ID текст', 0, $incoming_chat_id);
+            $this->send_telegram_plain('Ошибка: не удалось определить чат для ответа.', 0, $incoming_chat_id);
             return rest_ensure_response(['ok' => true]);
         }
 
@@ -2300,8 +2266,6 @@ class Support_Chat_Telegram_Plugin {
         }
         $text .= 'Пользователь: ' . $sender_name . "\n\n";
         $text .= $message;
-        $text .= "\n\n" . 'Ответить клиенту: #' . (int) $ticket_id . ' <текст>';
-        $text .= "\n" . 'Отправить приглашение на регистрацию: /invite ' . (int) $ticket_id;
 
         return $this->send_telegram_plain($text, (int) $ticket_id);
     }
@@ -2315,8 +2279,6 @@ class Support_Chat_Telegram_Plugin {
         $text .= 'Имя: ' . $guest_name . "\n";
         $text .= 'Email: ' . $guest_email . "\n\n";
         $text .= $message;
-        $text .= "\n\n" . 'Ответить клиенту: #' . (int) $ticket_id . ' <текст>';
-        $text .= "\n" . 'Отправить приглашение на регистрацию: /invite ' . (int) $ticket_id;
 
         return $this->send_telegram_plain($text, (int) $ticket_id);
     }
@@ -2366,30 +2328,6 @@ class Support_Chat_Telegram_Plugin {
         }
 
         return $ok;
-    }
-
-    private function send_registration_invite_for_ticket($ticket_id) {
-        $ticket = $this->get_ticket($ticket_id);
-        if (!$ticket || !empty($ticket->user_id) || empty($ticket->guest_email) || !is_email($ticket->guest_email)) {
-            return false;
-        }
-
-        $register_url = add_query_arg(
-            [
-                'support_chat_register' => 1,
-                'ticket_id' => (int) $ticket->id,
-                'email' => (string) $ticket->guest_email,
-            ],
-            home_url('/')
-        );
-
-        $subject = 'Завершите регистрацию для поддержки';
-        $body = "Здравствуйте!\n\n";
-        $body .= "Чтобы продолжить диалог в личном кабинете, зарегистрируйтесь по ссылке:\n";
-        $body .= $register_url . "\n\n";
-        $body .= 'После регистрации вся переписка по тикету #' . (int) $ticket->id . ' будет доступна в вашем аккаунте.';
-
-        return wp_mail($ticket->guest_email, $subject, $body);
     }
 
     private function save_telegram_message_link($chat_id, $telegram_message_id, $ticket_id) {
