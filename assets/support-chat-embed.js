@@ -73,6 +73,7 @@
   }
 
   var authToken = localStorage.getItem(authKey) || '';
+  var teaserKey = 'support_chat_embed_teaser_seen_' + siteKey;
   var profile = null;
   var activeTicketId = 0;
   var forceNewTicket = false;
@@ -340,7 +341,14 @@
     }).catch(function(){ alert(L.connectError); });
   }
 
-  launcher.onclick = function(){ shell.style.display = 'block'; state(); };
+  function openPanel(){
+    shell.style.display = 'block';
+    teaser.style.display = 'none';
+    try { sessionStorage.setItem(teaserKey, '1'); } catch(e){}
+    state();
+  }
+
+  launcher.onclick = openPanel;
   shell.querySelector('#scxClose').onclick = function(){ shell.style.display = 'none'; };
   shell.querySelector('#scxCreate').onclick = function(){ forceNewTicket = true; composingNewTicket = true; activeTicketId = 0; renderMessages([]); inputEl.focus(); setView('scxViewChat'); };
   shell.querySelector('#scxBackTickets').onclick = function(){ setView('scxViewChat'); };
@@ -352,6 +360,15 @@
   inputEl.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); send(); } };
 
   setInterval(function(){ if(shell.style.display === 'block'){ state(); } }, 5000);
+
+  window.setTimeout(function(){
+    var shown = false;
+    try { shown = sessionStorage.getItem(teaserKey) === '1'; } catch(e){}
+    if(!shown && shell.style.display !== 'block'){
+      teaser.style.display = 'block';
+    }
+  }, 3000);
+  teaser.onclick = openPanel;
 
   var initialProfile = loadProfile();
   if(initialProfile){ saveProfile(initialProfile); }

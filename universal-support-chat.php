@@ -1377,6 +1377,7 @@ class Support_Chat_Telegram_Plugin {
         if ($ticket) {
             $messages = $this->format_messages_for_client($this->get_ticket_messages((int) $ticket->id));
             wp_send_json_success([
+                'nonce' => wp_create_nonce('support_chat_widget'),
                 'ticket_id' => (int) $ticket->id,
                 'status' => (string) $ticket->status,
                 'tickets' => array_map([$this, 'format_ticket_for_client'], $this->collect_current_visitor_tickets()),
@@ -1403,6 +1404,7 @@ class Support_Chat_Telegram_Plugin {
         }
 
         wp_send_json_success([
+            'nonce' => wp_create_nonce('support_chat_widget'),
             'ticket_id' => $ticket ? (int) $ticket->id : 0,
             'status' => $ticket ? (string) $ticket->status : 'new',
             'tickets' => array_map([$this, 'format_ticket_for_client'], $tickets_for_list),
@@ -1413,7 +1415,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function ajax_widget_send() {
         $this->ensure_runtime_schema();
-        check_ajax_referer('support_chat_widget', 'nonce');
+        if (!check_ajax_referer('support_chat_widget', 'nonce', false)) {
+            wp_send_json_error(['error' => 'invalid_nonce', 'nonce' => wp_create_nonce('support_chat_widget')], 403);
+        }
         if (!$this->check_rate_limit('widget_send', 20, 60)) {
             wp_send_json_error(['error' => 'rate_limited'], 429);
         }
@@ -1515,7 +1519,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function ajax_widget_login() {
         $this->ensure_runtime_schema();
-        check_ajax_referer('support_chat_widget', 'nonce');
+        if (!check_ajax_referer('support_chat_widget', 'nonce', false)) {
+            wp_send_json_error(['error' => 'invalid_nonce', 'nonce' => wp_create_nonce('support_chat_widget')], 403);
+        }
         if (!$this->check_rate_limit('widget_login', 10, 300)) {
             wp_send_json_error(['error' => 'rate_limited'], 429);
         }
@@ -1553,7 +1559,9 @@ class Support_Chat_Telegram_Plugin {
 
     public function ajax_widget_register() {
         $this->ensure_runtime_schema();
-        check_ajax_referer('support_chat_widget', 'nonce');
+        if (!check_ajax_referer('support_chat_widget', 'nonce', false)) {
+            wp_send_json_error(['error' => 'invalid_nonce', 'nonce' => wp_create_nonce('support_chat_widget')], 403);
+        }
         if (!$this->check_rate_limit('widget_register', 5, 600)) {
             wp_send_json_error(['error' => 'rate_limited'], 429);
         }
@@ -3061,6 +3069,7 @@ class Support_Chat_Telegram_Plugin {
                 function reloadState(){
                     return post({action:"support_chat_widget_state", ticket_id: activeTicketId}).then(function(res){
                         if(res && res.success && res.data && Array.isArray(res.data.messages)){
+                            if(res.data.nonce){ nonce = res.data.nonce; }
                             if(!composingNewTicket && res.data.ticket_id){
                                 activeTicketId = parseInt(res.data.ticket_id, 10) || activeTicketId;
                             }
@@ -3138,6 +3147,13 @@ class Support_Chat_Telegram_Plugin {
                             renderMessages(res.data.messages);
                             reloadState();
                         } else if(res && res.data && res.data.error){
+                            if(res.data.error === "invalid_nonce" && res.data.nonce){
+                                nonce = res.data.nonce;
+                                sendBtn.disabled = false;
+                                loading = false;
+                                sendBtn.click();
+                                return;
+                            }
                             var extra = res.data.details ? " (" + res.data.details + ")" : "";
                             alert(tError + ": " + res.data.error + extra);
                         } else {
@@ -3198,6 +3214,10 @@ class Support_Chat_Telegram_Plugin {
                                     setView("tickets");
                                     reloadState();
                                 } else {
+                                    if(res && res.data && res.data.error === "invalid_nonce" && res.data.nonce){
+                                        nonce = res.data.nonce;
+                                        return;
+                                    }
                                     alert(tRegisterFailed);
                                 }
                             }).catch(function(){
@@ -3222,6 +3242,10 @@ class Support_Chat_Telegram_Plugin {
                                     setView("tickets");
                                     reloadState();
                                 } else {
+                                    if(res && res.data && res.data.error === "invalid_nonce" && res.data.nonce){
+                                        nonce = res.data.nonce;
+                                        return;
+                                    }
                                     alert(tLoginFailed);
                                 }
                             }).catch(function(){
