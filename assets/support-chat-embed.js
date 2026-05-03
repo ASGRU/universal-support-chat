@@ -11,6 +11,7 @@
   var i18n = {
     ru: {
       launcher: 'Чат', title: 'Поддержка', online: 'Онлайн', createChat: 'Создать чат',
+      teaserTitle: 'Нужна срочная помощь с сайтом?', teaserBody: 'Опишите нам проблему, и мы ответим как можно быстрее.',
       backToChat: 'Назад к чату', signIn: 'Вход', signInToManage: 'Войдите, чтобы управлять чатами',
       myChats: 'Мои чаты', yourName: 'Ваше имя', yourEmail: 'Ваш email',
       msgPlaceholder: 'Введите сообщение...', problem: 'Опишите проблему...',
@@ -27,6 +28,7 @@
     },
     en: {
       launcher: 'Chat', title: 'Support', online: 'Online', createChat: 'Create chat',
+      teaserTitle: 'Need urgent help with your website?', teaserBody: 'Describe your issue, and we will reply as soon as possible.',
       backToChat: 'Back to chat', signIn: 'Sign in', signInToManage: 'Sign in to manage chats',
       myChats: 'My chats', yourName: 'Your name', yourEmail: 'Your email',
       msgPlaceholder: 'Type a message...', problem: 'Describe your issue...',
@@ -43,6 +45,7 @@
     },
     et: {
       launcher: 'Vestlus', title: 'Tugi', online: 'Online', createChat: 'Loo vestlus',
+      teaserTitle: 'Kas vajad veebilehega kiiret abi?', teaserBody: 'Kirjelda meile oma probleemi ja vastame esimesel võimalusel.',
       backToChat: 'Tagasi vestlusesse', signIn: 'Sisselogimine', signInToManage: 'Logi sisse, et vestlusi hallata',
       myChats: 'Minu vestlused', yourName: 'Sinu nimi', yourEmail: 'Sinu e-post',
       msgPlaceholder: 'Sisesta sõnum...', problem: 'Kirjelda probleemi...',
@@ -121,7 +124,7 @@
 
   var teaser = document.createElement('div');
   teaser.className = 'scx-teaser';
-  teaser.innerHTML = '<strong>'+L.title+'</strong><span>'+L.signInToManage+'</span>';
+  teaser.innerHTML = '<strong>'+L.teaserTitle+'</strong><span>'+L.teaserBody+'</span>';
 
   var launcher = document.createElement('button');
   launcher.className = 'scx-launcher';
