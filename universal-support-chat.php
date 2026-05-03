@@ -76,6 +76,8 @@ class Support_Chat_Telegram_Plugin {
         add_action('wp_ajax_support_chat_widget_register', [$this, 'ajax_widget_register']);
         add_action('wp_ajax_nopriv_support_chat_widget_logout', [$this, 'ajax_widget_logout']);
         add_action('wp_ajax_support_chat_widget_logout', [$this, 'ajax_widget_logout']);
+        add_action('wp_ajax_nopriv_support_chat_widget_open', [$this, 'ajax_widget_open']);
+        add_action('wp_ajax_support_chat_widget_open', [$this, 'ajax_widget_open']);
         add_action('support_chat_check_unanswered', [$this, 'handle_unanswered_followup'], 10, 3);
         add_filter('rest_pre_serve_request', [$this, 'rest_cors_headers'], 10, 4);
     }
@@ -1654,6 +1656,35 @@ class Support_Chat_Telegram_Plugin {
         wp_send_json_success(['ok' => true]);
     }
 
+    public function ajax_widget_open() {
+        $this->ensure_runtime_schema();
+        if (!check_ajax_referer('support_chat_widget', 'nonce', false)) {
+            wp_send_json_error(['error' => 'invalid_nonce', 'nonce' => wp_create_nonce('support_chat_widget')], 403);
+        }
+        if (!$this->check_rate_limit('widget_open', 20, 300)) {
+            wp_send_json_success(['ok' => true]);
+        }
+
+        $page_url = isset($_POST['page_url']) ? esc_url_raw((string) wp_unslash($_POST['page_url'])) : '';
+        $viewer = is_user_logged_in() ? wp_get_current_user() : null;
+        $title = 'Пользователь открыл чат';
+        if ($viewer && !empty($viewer->ID)) {
+            $title = 'Пользователь открыл чат (авторизован)';
+        }
+        $text = $title . "\n";
+        if ($viewer && !empty($viewer->ID)) {
+            $text .= 'Пользователь: ' . (string) $viewer->user_login . "\n";
+            $text .= 'Email: ' . (string) $viewer->user_email . "\n";
+        } else {
+            $text .= 'Пользователь: гость' . "\n";
+        }
+        if ($page_url !== '') {
+            $text .= 'Страница: ' . $page_url . "\n";
+        }
+        $this->send_telegram_plain($text, 0);
+        wp_send_json_success(['ok' => true, 'nonce' => wp_create_nonce('support_chat_widget')]);
+    }
+
     public function register_rest_routes() {
         register_rest_route('support-chat/v1', '/telegram-webhook', [
             'methods' => 'POST',
@@ -1684,6 +1715,11 @@ class Support_Chat_Telegram_Plugin {
             'methods' => ['POST', 'OPTIONS'],
             'permission_callback' => '__return_true',
             'callback' => [$this, 'rest_external_tickets'],
+        ]);
+        register_rest_route('support-chat/v1', '/external/open', [
+            'methods' => ['POST', 'OPTIONS'],
+            'permission_callback' => '__return_true',
+            'callback' => [$this, 'rest_external_open'],
         ]);
     }
 
@@ -2157,6 +2193,50 @@ class Support_Chat_Telegram_Plugin {
 
         $tickets = $this->list_external_client_tickets((int) $site->id, (int) $client_id);
         return rest_ensure_response(['ok' => true, 'tickets' => $tickets]);
+    }
+
+    public function rest_external_open($request) {
+        $this->ensure_runtime_schema();
+        if (!$this->check_rate_limit('external_open', 30, 300)) {
+            return rest_ensure_response(['ok' => true]);
+        }
+        $api_key = sanitize_text_field((string) $request->get_param('site_key'));
+        $visitor_id = sanitize_text_field((string) $request->get_param('visitor_id'));
+        $auth_token = sanitize_text_field((string) $request->get_param('auth_token'));
+        $page_url = esc_url_raw((string) $request->get_param('page_url'));
+        $origin = (string) $request->get_header('origin');
+
+        $site = $this->get_site_by_api_key($api_key);
+        if (!$site) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'invalid_site_key'], 403);
+        }
+        if (!$this->is_origin_allowed_for_site($origin, (string) $site->site_url)) {
+            return new WP_REST_Response(['ok' => false, 'error' => 'origin_not_allowed'], 403);
+        }
+
+        $client = null;
+        $client_id = $this->verify_external_auth_token($auth_token, (int) $site->id);
+        if ($client_id > 0) {
+            $client = $this->get_external_client_by_id((int) $site->id, $client_id);
+        }
+
+        $text = "Пользователь открыл чат\n";
+        $text .= 'Сайт: ' . (string) $site->name . "\n";
+        $text .= 'URL сайта: ' . (string) $site->site_url . "\n";
+        if ($client) {
+            $text .= 'Клиент: ' . (string) $client->name . ' (' . (string) $client->email . ')' . "\n";
+        } else {
+            $text .= 'Клиент: гость' . "\n";
+            if ($visitor_id !== '') {
+                $text .= 'Visitor ID: ' . $visitor_id . "\n";
+            }
+        }
+        if ($page_url !== '') {
+            $text .= 'Страница: ' . $page_url . "\n";
+        }
+
+        $this->send_telegram_plain($text, 0);
+        return rest_ensure_response(['ok' => true]);
     }
 
     public function rest_telegram_webhook($request) {
@@ -2786,8 +2866,6 @@ class Support_Chat_Telegram_Plugin {
         $i18n_logout = esc_js(__('выйти', self::TEXT_DOMAIN));
         $i18n_edit = esc_js(__('изменить', self::TEXT_DOMAIN));
         $i18n_login_for_tickets = esc_js(__('Для управления чатами аккаунта выполните вход.', self::TEXT_DOMAIN));
-        $i18n_guest_name_prompt = esc_js(__('Введите ваше имя', self::TEXT_DOMAIN));
-        $i18n_guest_email_prompt = esc_js(__('Введите ваш email', self::TEXT_DOMAIN));
         $i18n_auth_login_title = esc_js(__('Вход', self::TEXT_DOMAIN));
         $i18n_auth_register_title = esc_js(__('Регистрация', self::TEXT_DOMAIN));
         $i18n_auth_login_submit = esc_js(__('Войти', self::TEXT_DOMAIN));
@@ -2843,8 +2921,6 @@ class Support_Chat_Telegram_Plugin {
                 var tLogout = ' . wp_json_encode($i18n_logout) . ';
                 var tEdit = ' . wp_json_encode($i18n_edit) . ';
                 var tLoginForTickets = ' . wp_json_encode($i18n_login_for_tickets) . ';
-                var tGuestNamePrompt = ' . wp_json_encode($i18n_guest_name_prompt) . ';
-                var tGuestEmailPrompt = ' . wp_json_encode($i18n_guest_email_prompt) . ';
                 var tAuthLoginTitle = ' . wp_json_encode($i18n_auth_login_title) . ';
                 var tAuthRegisterTitle = ' . wp_json_encode($i18n_auth_register_title) . ';
                 var tAuthLoginSubmit = ' . wp_json_encode($i18n_auth_login_submit) . ';
@@ -2855,7 +2931,6 @@ class Support_Chat_Telegram_Plugin {
                 var tAuthHaveAccount = ' . wp_json_encode($i18n_auth_have_account) . ';
                 var tMyTickets = ' . wp_json_encode(__('Мои чаты', self::TEXT_DOMAIN)) . ';
                 var tLoginLink = ' . wp_json_encode(__('Войти', self::TEXT_DOMAIN)) . ';
-                var teaserKey = "support_chat_teaser_seen";
                 var profileStorageKey = "support_chat_widget_profile";
                 var visitorStorageKey = "support_chat_widget_visitor";
                 var lastSignature = "";
@@ -3088,7 +3163,9 @@ class Support_Chat_Telegram_Plugin {
                     shell.style.display = "block";
                     shell.setAttribute("aria-hidden", "false");
                     teaser.style.display = "none";
-                    try { sessionStorage.setItem(teaserKey, "1"); } catch(e) {}
+                    post({action:"support_chat_widget_open", nonce: nonce, page_url: window.location.href}).then(function(res){
+                        if(res && res.data && res.data.nonce){ nonce = res.data.nonce; }
+                    }).catch(function(){});
                     forceNewTicket = false;
                     composingNewTicket = false;
                     setView("chat");
@@ -3113,9 +3190,7 @@ class Support_Chat_Telegram_Plugin {
                     createTicketBtn.addEventListener("dblclick", function(ev){ ev.preventDefault(); });
                 }
                 window.setTimeout(function(){
-                    var shown = false;
-                    try { shown = sessionStorage.getItem(teaserKey) === "1"; } catch(e) {}
-                    if(!shown){
+                    if(shell.style.display !== "block"){
                         teaser.style.display = "block";
                     }
                 }, 3000);

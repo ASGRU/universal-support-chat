@@ -73,7 +73,6 @@
   }
 
   var authToken = localStorage.getItem(authKey) || '';
-  var teaserKey = 'support_chat_embed_teaser_seen_' + siteKey;
   var profile = null;
   var activeTicketId = 0;
   var forceNewTicket = false;
@@ -107,6 +106,7 @@
   style.textContent = ''+
   '.scx-launcher{position:fixed;right:18px;bottom:18px;z-index:999998;background:#04062b;color:#fff;border:none;border-radius:999px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 12px 24px rgba(4,6,43,.28)}'+
   '.scx-teaser{position:fixed;right:18px;bottom:74px;z-index:999998;max-width:300px;background:#fff;color:#101322;border:1px solid #d9dce7;border-radius:14px;padding:12px 14px;box-shadow:0 14px 28px rgba(10,25,70,.18);display:none}'+
+  '.scx-teaser strong{display:block;margin-bottom:4px}'+
   '.scx-shell{position:fixed;right:14px;bottom:14px;z-index:999999;width:min(393px,calc(100vw - 16px));height:min(68vh,920px);display:none;overflow:visible}'+
   '.scx-panel{position:absolute;left:0;right:0;bottom:0;top:0;background:#fff;border:1px solid #d8dbe6;border-radius:24px;box-shadow:0 20px 44px rgba(7,20,60,.28);overflow:hidden}'+
   '.scx-close{position:absolute;top:-16px;left:-16px;width:40px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #d8dbe6;box-shadow:none;color:#787c8e;font-size:28px;cursor:pointer;z-index:4}'+
@@ -121,7 +121,7 @@
 
   var teaser = document.createElement('div');
   teaser.className = 'scx-teaser';
-  teaser.innerHTML = '<strong>'+L.title+'</strong>' + L.signInToManage;
+  teaser.innerHTML = '<strong>'+L.title+'</strong><span>'+L.signInToManage+'</span>';
 
   var launcher = document.createElement('button');
   launcher.className = 'scx-launcher';
@@ -344,7 +344,7 @@
   function openPanel(){
     shell.style.display = 'block';
     teaser.style.display = 'none';
-    try { sessionStorage.setItem(teaserKey, '1'); } catch(e){}
+    req('/external/open', {page_url: location.href}).catch(function(){});
     state();
   }
 
@@ -362,9 +362,7 @@
   setInterval(function(){ if(shell.style.display === 'block'){ state(); } }, 5000);
 
   window.setTimeout(function(){
-    var shown = false;
-    try { shown = sessionStorage.getItem(teaserKey) === '1'; } catch(e){}
-    if(!shown && shell.style.display !== 'block'){
+    if(shell.style.display !== 'block'){
       teaser.style.display = 'block';
     }
   }, 3000);
